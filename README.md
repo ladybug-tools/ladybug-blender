@@ -4,7 +4,8 @@
 
 # ladybug-blender
 
-:beetle: :orange_book: Ladybug plugin for [Blender](https://www.blender.org/).
+:beetle: :orange_book: Ladybug plugin for [Blender](https://www.blender.org/) using the
+[Sverchock](https://github.com/nortikin/sverchok) visual scripting interface for Blender.
 
 This package contains the interface between Blender and the Ladybug Tools core
 libraries as well as the Blender Sverchok nodes for the Ladybug plugin.
