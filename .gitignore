@@ -12,3 +12,5 @@ tox.ini
 /.vscode
 .eggs
 *.code-workspace
+init.txt
+dist/
