@@ -103,6 +103,8 @@ class SvLBOut(bpy.types.Node, SverchCustomTreeNode):
             self.sverchok_from_polyline(geometry)
         elif isinstance(geometry, Polyline3D):
             self.sverchok_from_polyline(geometry)
+        elif isinstance(geometry, (float, int, tuple, list, str)):
+            pass # The user probably connected a non geometry node
         else:
             print('WARNING: geometry {} not yet supported in Sverchok: {}'.format(type(geometry), geometry))
 
@@ -128,6 +130,8 @@ class SvLBOut(bpy.types.Node, SverchCustomTreeNode):
             self.blender_from_polyline(geometry)
         elif isinstance(geometry, Polyline3D):
             self.blender_from_polyline(geometry)
+        elif isinstance(geometry, (float, int, tuple, list, str)):
+            pass # The user probably connected a non geometry node
         else:
             print('WARNING: geometry {} not yet supported in Blender: {}'.format(type(geometry), geometry))
 
