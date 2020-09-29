@@ -62,6 +62,12 @@ class Sv{{{nickname}}}(bpy.types.Node, SverchCustomTreeNode):
         result = default if isinstance(value, str) and value == '' else value
         if result is None and data_type == 'bool':
             return False
+        elif result is not None and data_type == 'bool':
+            return bool(result)
+        elif result is not None and data_type == 'int':
+            return int(result)
+        elif result is not None and data_type == 'double':
+            return float(result)
         return result
 
     def process_ladybug(self, {{{input_name_unquoted_list}}}):
