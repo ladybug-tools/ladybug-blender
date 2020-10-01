@@ -21,6 +21,7 @@ from mathutils import Vector, Matrix
 class SvLBOutOp(bpy.types.Operator):
     bl_idname = "node.sv_lb_out"
     bl_label = "LB Out"
+    bl_options = {'UNDO'}
 
     idtree: StringProperty(default='')
     idname: StringProperty(default='')
