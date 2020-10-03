@@ -12,7 +12,6 @@ class Generator():
         self.out_dir = './dist/working/python/'
 
     def generate(self):
-        self.init_f = open("init.txt", "a")
         for filename in Path(self.json_dir).glob('*.json'):
             if 'LB_Export_UserObject' in str(filename) \
                     or 'LB_Sync_Grasshopper_File' in str(filename) \
@@ -20,7 +19,6 @@ class Generator():
                 continue # I think these nodes are just for Grasshopper
             with open(filename, 'r') as spec_f:
                 self.generate_node(os.path.basename(filename), json.load(spec_f))
-        self.init_f.close()
 
     def generate_node(self, filename, spec):
         code_data = {
@@ -50,7 +48,6 @@ class Generator():
         spec['output_name_list'] = ', '.join(["'{}'".format(o['name']) for o in spec['outputs']])
         spec['nickname'] = spec['nickname'].replace('+', 'Plus')
         module_name = filename[0:-5]
-        self.init_f.write('("ladybug.{}", "Sv{}"),\n'.format(module_name, spec['nickname']))
         out_filepath = os.path.join(self.out_dir, module_name + '.py')
         with open(out_filepath, 'w') as f:
             with open('generic_node.mustache', 'r') as template:

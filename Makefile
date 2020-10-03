@@ -14,6 +14,9 @@ dist:
 	cd dist/working/json && cp -r ladybug-grasshopper-master/ladybug_grasshopper/json/*.json ./
 	python -m venv dist/working/env
 	source dist/working/env/bin/activate && pip install pystache
+	source dist/working/env/bin/activate && python generate_init.py
+	cp -r dist/working/python/* dist/ladybug_tools/
+	rm -rf dist/working/python/*
 	source dist/working/env/bin/activate && python generate_nodes.py
 	cp -r dist/working/python/* dist/ladybug_tools/nodes/ladybug/
 	rm -rf dist/working
