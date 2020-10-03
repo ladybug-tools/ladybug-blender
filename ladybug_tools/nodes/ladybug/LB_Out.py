@@ -36,6 +36,7 @@ class SvLBOutOp(bpy.types.Operator):
 class SvLBOut(bpy.types.Node, SverchCustomTreeNode):
     bl_idname = 'SvLBOut'
     bl_label = 'LB Out'
+    sv_icon = 'LB_OUT'
     base_name = 'geometry '
     multi_socket_type = 'SvStringsSocket'
     has_baked: bpy.props.BoolProperty(name='Has Baked', default=False)

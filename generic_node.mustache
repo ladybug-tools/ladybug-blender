@@ -9,6 +9,7 @@ ghenv = ladybug_tools.helper.ghenv
 class Sv{{{nickname}}}(bpy.types.Node, SverchCustomTreeNode):
     bl_idname = 'Sv{{{nickname}}}'
     bl_label = '{{{name}}}'
+    sv_icon = 'LB_{{{nickname_uppercase}}}'
     {{#inputs}}
     sv_{{{name}}}: StringProperty(name='{{{name}}}', update=updateNode)
     {{/inputs}}

@@ -21,6 +21,7 @@ import sys
 import importlib
 import nodeitems_utils
 import sverchok
+from ladybug_tools import icons
 from sverchok.core import sv_registration_utils, make_node_list
 from sverchok.utils import auto_gather_node_classes, get_node_class_reference
 from sverchok.menu import SverchNodeItem, SverchNodeCategory, register_node_panels
@@ -143,6 +144,7 @@ def register():
 
     debug("Registering ladybug_tools")
 
+    icons.register()
     bpy.utils.register_class(NODEVIEW_MT_EX_LADYBUG_TOOLS_Ladybug)
     register_nodes()
     extra_nodes = importlib.import_module(".nodes", "ladybug_tools")
@@ -173,3 +175,4 @@ def unregister():
     {{#subcategories}}
     bpy.utils.unregister_class(NODEVIEW_MT_AddLBSubcategory{{name}})
     {{/subcategories}}
+    icons.unregister()

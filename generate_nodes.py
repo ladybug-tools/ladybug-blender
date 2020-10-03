@@ -7,6 +7,7 @@ from pathlib import Path
 class Generator():
     def __init__(self):
         self.json_dir = './dist/working/json/'
+        self.icon_dir = './dist/working/icon/'
         self.python2to3_bin = '/usr/bin/2to3'
         #self.out_dir = './nodes/ladybug/'
         self.out_dir = './dist/working/python/'
@@ -47,12 +48,19 @@ class Generator():
         spec['input_access_list'] = ', '.join(["'{}'".format(i['access']) for i in spec['inputs']])
         spec['output_name_list'] = ', '.join(["'{}'".format(o['name']) for o in spec['outputs']])
         spec['nickname'] = spec['nickname'].replace('+', 'Plus')
+        spec['nickname_uppercase'] = spec['nickname'].upper()
         module_name = filename[0:-5]
         out_filepath = os.path.join(self.out_dir, module_name + '.py')
         with open(out_filepath, 'w') as f:
             with open('generic_node.mustache', 'r') as template:
                 f.write(pystache.render(template.read(), spec))
         subprocess.run([self.python2to3_bin, '-x', 'itertools_imports', '-w', out_filepath])
+        icon_path = os.path.join(self.icon_dir, 'lb_{}.png'.format(spec['nickname'].lower()))
+        os.rename(
+            os.path.join(self.icon_dir, '{}.png'.format(module_name.replace('_', ' '))),
+            icon_path)
+        # This incantation reverts the intensity channel in HSI. It will make light colors darker, and dark colors lighter
+        subprocess.run(['convert', icon_path, '-colorspace', 'HSI', '-channel', 'B', '-level', '100,0%', '+channel', '-colorspace', 'sRGB', icon_path])
 
 generator = Generator()
 generator.generate()
