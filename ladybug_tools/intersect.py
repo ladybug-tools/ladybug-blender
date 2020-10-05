@@ -7,7 +7,7 @@ import bpy
 import mathutils.geometry
 import math
 from .config import tolerance
-from mathutils import Vector
+from mathutils import Vector, Matrix
 
 
 def join_geometry_to_mesh(geometry):
@@ -28,6 +28,9 @@ def join_geometry_to_mesh(geometry):
     c['selected_objects'] = c['selected_editable_objects'] = copied_geometry
     bpy.ops.object.join(c)
     bpy.context.scene.collection.objects.link(copied_geometry[0])
+    # Apply all transformations
+    copied_geometry[0].data.transform(copied_geometry[0].matrix_world)
+    copied_geometry[0].matrix_world = Matrix()
     return copied_geometry[0]
     for geo in geometry:
         if isinstance(geo, rg.Brep):
