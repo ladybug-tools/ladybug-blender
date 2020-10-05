@@ -64,6 +64,10 @@ class Sv{{{nickname}}}(bpy.types.Node, SverchCustomTreeNode):
         if result is None and data_type == 'bool':
             return False
         elif result is not None and data_type == 'bool':
+            if result == 'True' or result == '1':
+                return True
+            elif result == 'False' or result == '0':
+                return False
             return bool(result)
         elif result is not None and data_type == 'int':
             return int(result)
