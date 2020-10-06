@@ -287,7 +287,7 @@ class SvLBOut(bpy.types.Node, SverchCustomTreeNode):
     def blender_from_text(self, text):
         data = bpy.data.curves.new('Ladybug Text', 'FONT')
         data.body = text.text
-        data.size = text.height * 2
+        data.size = text.height
 
         if text.horizontal_alignment == 0:
             data.align_x = 'LEFT'
