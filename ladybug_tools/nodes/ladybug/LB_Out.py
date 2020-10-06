@@ -227,9 +227,31 @@ class SvLBOut(bpy.types.Node, SverchCustomTreeNode):
                 if not material:
                     material = bpy.data.materials.new(name)
                     material.diffuse_color = (color.r / 255, color.g / 255, color.b / 255, color.a / 255)
+                    material.specular_intensity = 0
                 data.materials.append(material)
             material_index = [material_to_slot[get_material_name(c)] for c in mesh.colors]
             data.polygons.foreach_set('material_index', material_index)
+        else:
+            material = bpy.data.materials.get('LB_VCol')
+            if not material:
+                material = bpy.data.materials.new('LB_VCol')
+                material.use_nodes = True
+                for node in material.node_tree.nodes:
+                    if node.type == 'OUTPUT_MATERIAL':
+                        output_node = node
+                        break
+                emission = material.node_tree.nodes.new(type='ShaderNodeEmission')
+                attribute = material.node_tree.nodes.new(type='ShaderNodeAttribute')
+                attribute.attribute_name = 'LB_Col'
+                material.node_tree.links.new(attribute.outputs[0], emission.inputs[0])
+                material.node_tree.links.new(emission.outputs[0], output_node.inputs[0])
+            data.materials.append(material)
+            data.vertex_colors.new(name='LB_Col')
+            for polygon in data.polygons:
+                for i, vi in enumerate(polygon.vertices):
+                    loop_index = polygon.loop_indices[i]
+                    color = mesh.colors[vi]
+                    data.vertex_colors['LB_Col'].data[loop_index].color = (color.r / 255, color.g / 255, color.b / 255, color.a / 255)
         obj = bpy.data.objects.new('Ladybug Mesh', data)
         bpy.context.scene.collection.objects.link(obj)
 
@@ -291,6 +313,7 @@ class SvLBOut(bpy.types.Node, SverchCustomTreeNode):
         if not material:
             material = bpy.data.materials.new(name)
             material.diffuse_color = (0, 0, 0, 255)
+            material.specular_intensity = 0
         data.materials.append(material)
 
         obj = bpy.data.objects.new('Ladybug Text', data)
