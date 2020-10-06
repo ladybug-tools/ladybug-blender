@@ -11,6 +11,7 @@ from ladybug_geometry.geometry2d.arc import Arc2D
 from ladybug_geometry.geometry3d.arc import Arc3D
 from ladybug_geometry.geometry2d.mesh import Mesh2D
 from ladybug_geometry.geometry3d.mesh import Mesh3D
+from ladybug_geometry.geometry2d.pointvector import Point2D
 from ladybug_geometry.geometry3d.pointvector import Point3D
 from ladybug_geometry.geometry2d.polyline import Polyline2D
 from ladybug_geometry.geometry3d.polyline import Polyline3D
@@ -99,11 +100,9 @@ class SvLBOut(bpy.types.Node, SverchCustomTreeNode):
             self.sverchok_from_arc3d(geometry)
         elif isinstance(geometry, LineSegment2D):
             self.sverchok_from_linesegment2d(geometry)
-        elif isinstance(geometry, Point3D):
-            self.sverchok_from_point3d(geometry)
-        elif isinstance(geometry, Polyline2D):
-            self.sverchok_from_polyline(geometry)
-        elif isinstance(geometry, Polyline3D):
+        elif isinstance(geometry, (Point2D, Point3D)):
+            self.sverchok_from_point(geometry)
+        elif isinstance(geometry, (Polyline2D, Polyline3D)):
             self.sverchok_from_polyline(geometry)
         elif isinstance(geometry, (float, int, tuple, list, str)):
             pass # The user probably connected a non geometry node
@@ -121,16 +120,12 @@ class SvLBOut(bpy.types.Node, SverchCustomTreeNode):
             self.blender_from_linesegment2d(geometry)
         elif isinstance(geometry, LadybugText):
             self.blender_from_text(geometry)
-        elif isinstance(geometry, Mesh2D):
+        elif isinstance(geometry, (Mesh2D, Mesh3D)):
             self.blender_from_mesh(geometry)
-        elif isinstance(geometry, Mesh3D):
-            self.blender_from_mesh(geometry)
-        elif isinstance(geometry, Point3D):
+        elif isinstance(geometry, (Point2D, Point3D)):
             # Points are much more efficient in a single mesh
-            self.blender_v.append(self.from_point3d(geometry))
-        elif isinstance(geometry, Polyline2D):
-            self.blender_from_polyline(geometry)
-        elif isinstance(geometry, Polyline3D):
+            self.blender_v.append(self.from_point(geometry))
+        elif isinstance(geometry, (Polyline2D, Polyline3D)):
             self.blender_from_polyline(geometry)
         elif isinstance(geometry, (float, int, tuple, list, str)):
             pass # The user probably connected a non geometry node
@@ -255,12 +250,12 @@ class SvLBOut(bpy.types.Node, SverchCustomTreeNode):
         obj = bpy.data.objects.new('Ladybug Mesh', data)
         bpy.context.scene.collection.objects.link(obj)
 
-    def from_point3d(self, point):
+    def from_point(self, point):
         """Rhino Point3d from ladybug Point3D."""
-        return (point.x, point.y, point.z)
+        return (point.x, point.y, point.z if hasattr(point, 'z') else 0)
 
-    def sverchok_from_point3d(self, point):
-        self.v.append([self.from_point3d(point)])
+    def sverchok_from_point(self, point):
+        self.v.append([self.from_point(point)])
         self.e.append([[0, 0]]) # Hack
         self.f.append([[0]]) # Hack
 
@@ -326,7 +321,7 @@ class SvLBOut(bpy.types.Node, SverchCustomTreeNode):
         import numpy as np
         from space_view3d_point_cloud_visualizer import PCVControl
         obj = bpy.data.objects.new('Ladybug Colored Points', None)
-        vs = [(cv.point.x, cv.point.y, cv.point.z) for cv in self.blender_colored_v]
+        vs = [(cv.point.x, cv.point.y, cv.point.z if hasattr(cv.point, 'z') else 0) for cv in self.blender_colored_v]
         cs = [(cv.color.r/255, cv.color.g/255, cv.color.b/255) for cv in self.blender_colored_v]
         PCVControl(obj).draw(vs, [], cs)
         bpy.context.scene.collection.objects.link(obj)
