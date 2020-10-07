@@ -11,17 +11,20 @@ class Sv{{{nickname}}}(bpy.types.Node, SverchCustomTreeNode):
     bl_label = '{{{name}}}'
     sv_icon = 'LB_{{{nickname_uppercase}}}'
     {{#inputs}}
-    sv_{{{name}}}: StringProperty(name='{{{name}}}', update=updateNode)
+    sv_{{{name}}}: StringProperty(name='{{{name}}}', update=updateNode, description='{{{description}}}')
     {{/inputs}}
 
     def sv_init(self, context):
         self.width *= 1.3
         {{#inputs}}
-        self.inputs.new('SvLBSocket', '{{{name}}}').prop_name = 'sv_{{{name}}}'
+        input_node = self.inputs.new('SvLBSocket', '{{{name}}}')
+        input_node.prop_name = 'sv_{{{name}}}'
+        input_node.tooltip = '{{{description}}}'
         {{/inputs}}
-        self.sv_output_names = [{{{output_name_list}}}]
-        for name in self.sv_output_names:
-            self.outputs.new('SvStringsSocket', name)
+        {{#outputs}}
+        output_node = self.outputs.new('SvLBSocket', '{{{name}}}')
+        output_node.tooltip = '{{{description}}}'
+        {{/outputs}}
 
     def process(self):
         if not any(socket.is_linked for socket in self.outputs):

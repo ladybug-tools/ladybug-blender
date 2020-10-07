@@ -49,6 +49,10 @@ class Generator():
         spec['output_name_list'] = ', '.join(["'{}'".format(o['name']) for o in spec['outputs']])
         spec['nickname'] = spec['nickname'].replace('+', 'Plus')
         spec['nickname_uppercase'] = spec['nickname'].upper()
+        for item in spec['inputs']:
+            item['description'] = item['description'].replace('\n', ' ').replace("'", "\\'")
+        for item in spec['outputs']:
+            item['description'] = item['description'].replace('\n', ' ').replace("'", "\\'")
         module_name = filename[0:-5]
         out_filepath = os.path.join(self.out_dir, module_name + '.py')
         with open(out_filepath, 'w') as f:
