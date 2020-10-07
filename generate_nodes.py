@@ -49,6 +49,7 @@ class Generator():
         spec['output_name_list'] = ', '.join(["'{}'".format(o['name']) for o in spec['outputs']])
         spec['nickname'] = spec['nickname'].replace('+', 'Plus')
         spec['nickname_uppercase'] = spec['nickname'].upper()
+        spec['description'] = spec['description'].replace('\n', ' ').replace("'", "\\'")
         for item in spec['inputs']:
             item['description'] = item['description'].replace('\n', ' ').replace("'", "\\'")
         for item in spec['outputs']:

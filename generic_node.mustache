@@ -26,6 +26,9 @@ class Sv{{{nickname}}}(bpy.types.Node, SverchCustomTreeNode):
         output_node.tooltip = '{{{description}}}'
         {{/outputs}}
 
+    def draw_buttons(self, context, layout):
+        op = layout.operator('node.sv_lb_socket_name', text='', icon='QUESTION', emboss=False).tooltip = '{{{description}}}'
+
     def process(self):
         if not any(socket.is_linked for socket in self.outputs):
             return

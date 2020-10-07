@@ -12,7 +12,7 @@ def _monkey_get_lenient_socket_types():
 
 class SvLBSocketName(bpy.types.Operator):
     bl_idname = "node.sv_lb_socket_name"
-    bl_label = "LB Socket Name"
+    bl_label = "LB Info"
     bl_options = {'UNDO'}
 
     idtree: StringProperty(default='')
