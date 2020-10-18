@@ -7,7 +7,7 @@
             {
                 "assets": [
                     {
-                        "path": "ladybug-blender-${nextRelease.version}.zip",
+                        "path": "ladybug-blender.zip",
                         "name": "ladybug-blender-${nextRelease.version}.zip",
                         "label": "ladybug-blender-${nextRelease.version}.zip"
                     }
