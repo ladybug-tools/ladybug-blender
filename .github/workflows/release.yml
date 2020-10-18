@@ -14,10 +14,9 @@ jobs:
         with:
           ref: master
       
-      - name: test python 2-3
+      - name: install 2to3
         run: | 
           sudo apt install 2to3
-          python -m venv dist/working/env
           which 2to3
 
       - name: Compile
