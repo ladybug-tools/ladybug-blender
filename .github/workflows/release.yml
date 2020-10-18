@@ -1,0 +1,30 @@
+name: Release Plugins
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+
+  release:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: "Checkout Master Branch"
+        uses: actions/checkout@v2
+        with:
+          ref: master
+
+      - name: Compile
+        run: |
+          make dist
+          
+      - name: check outputs
+        run: |
+          ls -R
+          cp ladybug-blender-*.zip ladybug-blender.zip
+
+      - name: release
+        run: |
+          run: npx semantic-release
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}

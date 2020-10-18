@@ -2,11 +2,16 @@
     "plugins": [
         "@semantic-release/commit-analyzer",
         "@semantic-release/release-notes-generator",
-        "@semantic-release/github",
         [
-            "@semantic-release/exec",
+            "@semantic-release/github",
             {
-                "publishCmd": "bash deploy.sh"
+                "assets": [
+                    {
+                        "path": "ladybug-blender-${nextRelease.version}.zip",
+                        "name": "ladybug-blender-${nextRelease.version}.zip",
+                        "label": "ladybug-blender-${nextRelease.version}.zip"
+                    }
+                ]
             }
         ]
     ]
