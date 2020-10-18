@@ -29,7 +29,6 @@ jobs:
           ls -R
 
       - name: release
-        run: |
-          run: npx semantic-release
+        run: npx semantic-release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
