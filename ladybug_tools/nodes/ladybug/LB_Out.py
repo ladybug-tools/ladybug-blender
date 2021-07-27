@@ -24,12 +24,12 @@ class SvLBOutOp(bpy.types.Operator):
     bl_label = "LB Out"
     bl_options = {'UNDO'}
 
-    idtree: StringProperty(default='')
-    idname: StringProperty(default='')
+    tree_name: StringProperty(default='')
+    node_name: StringProperty(default='')
     has_baked: bpy.props.BoolProperty(name='Has Baked', default=False)
 
     def execute(self, context):
-        node = bpy.data.node_groups[self.idtree].nodes[self.idname]
+        node = bpy.data.node_groups[self.tree_name].nodes[self.node_name]
         node.refresh()
         return {'FINISHED'}
 
