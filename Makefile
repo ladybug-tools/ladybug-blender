@@ -15,21 +15,21 @@ dist:
 	cd dist/working/json && cp -r ../ladybug-grasshopper-master/ladybug_grasshopper/json/*.json ./
 	cd dist/working/icon && cp -r ../ladybug-grasshopper-master/ladybug_grasshopper/icon/*.png ./
 	python -m venv dist/working/env
-	source dist/working/env/bin/activate && pip install pystache
-	source dist/working/env/bin/activate && python generate_init.py
+	dist/working/env/bin/python -m pip install pystache
+	dist/working/env/bin/python generate_init.py
 	cp -r dist/working/python/* dist/ladybug_tools/
 	rm -rf dist/working/python/*
-	source dist/working/env/bin/activate && python generate_nodes.py
+	dist/working/env/bin/python generate_nodes.py
 	cp -r dist/working/python/* dist/ladybug_tools/nodes/ladybug/
 	cp -r dist/working/icon/* dist/ladybug_tools/icons/
 	rm -rf dist/working
 
 	mkdir dist/working
 	python -m venv dist/working/env
-	source dist/working/env/bin/activate && pip install lbt-ladybug
-	cp -r dist/working/env/lib/python3.7/site-packages/ladybug dist/ladybug_tools/lib/
-	cp -r dist/working/env/lib/python3.7/site-packages/ladybug_comfort dist/ladybug_tools/lib/
-	cp -r dist/working/env/lib/python3.7/site-packages/ladybug_geometry dist/ladybug_tools/lib/
+	dist/working/env/bin/python -m pip install lbt-ladybug
+	cp -r dist/working/env/lib/python*/site-packages/ladybug dist/ladybug_tools/lib/
+	cp -r dist/working/env/lib/python*/site-packages/ladybug_comfort dist/ladybug_tools/lib/
+	cp -r dist/working/env/lib/python*/site-packages/ladybug_geometry dist/ladybug_tools/lib/
 	rm -rf dist/working
 
 	cd dist/ladybug_tools && sed -i "s/999999/$(VERSION)/" __init__.py
