@@ -43,3 +43,11 @@ Things to be aware of:
  7. Objects coming from the scene need to be nested to be used in Ladybug nodes. Use the List join node with the wrap option enabled as shown in [this screenshot](https://user-images.githubusercontent.com/88302/94118359-c9a4fc00-fe90-11ea-8fea-735dc9e1326d.png)
 
 If you'd like to get a feel for it, watch [this demo video](https://www.youtube.com/watch?v=rMCuSwsF2aM).
+
+## Developing
+```bash
+sudo apt install git build-essentials 2to3 imagemagick
+git clone https://github.com/ladybug-tools/ladybug-blender.git
+cd ladybug-blender
+make dist
+```
