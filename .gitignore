@@ -14,3 +14,4 @@ tox.ini
 *.code-workspace
 init.txt
 dist/
+*.swp

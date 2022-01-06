@@ -47,7 +47,7 @@ class Generator():
         spec['input_default_list'] = ', '.join(spec['input_default_list'])
         spec['input_access_list'] = ', '.join(["'{}'".format(i['access']) for i in spec['inputs']])
         spec['output_name_list'] = ', '.join(["'{}'".format(o['name']) for o in spec['outputs']])
-        spec['nickname'] = spec['nickname'].replace('+', 'Plus')
+        spec['nickname'] = spec['nickname'].replace('+', 'Plus').replace(" ", "_")
         spec['nickname_uppercase'] = spec['nickname'].upper()
         spec['description'] = spec['description'].replace('\n', ' ').replace("'", "\\'")
         for item in spec['inputs']:

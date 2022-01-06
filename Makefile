@@ -27,9 +27,9 @@ dist:
 	mkdir dist/working
 	python -m venv dist/working/env
 	source dist/working/env/bin/activate && pip install lbt-ladybug
-	cp -r dist/working/env/lib/python3.7/site-packages/ladybug dist/ladybug_tools/lib/
-	cp -r dist/working/env/lib/python3.7/site-packages/ladybug_comfort dist/ladybug_tools/lib/
-	cp -r dist/working/env/lib/python3.7/site-packages/ladybug_geometry dist/ladybug_tools/lib/
+	cp -r dist/working/env/lib/python3.9/site-packages/ladybug dist/ladybug_tools/lib/
+	cp -r dist/working/env/lib/python3.9/site-packages/ladybug_comfort dist/ladybug_tools/lib/
+	cp -r dist/working/env/lib/python3.9/site-packages/ladybug_geometry dist/ladybug_tools/lib/
 	rm -rf dist/working
 
 	cd dist/ladybug_tools && sed -i "s/999999/$(VERSION)/" __init__.py
