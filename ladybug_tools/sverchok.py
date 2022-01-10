@@ -1,5 +1,6 @@
 """Functions for dealing with inputs and outputs from Grasshopper components."""
 import collections
+import multiprocessing
 
 def give_warning(component, message):
     """Give a warning message (turning the component orange).
@@ -55,6 +56,56 @@ def all_required_inputs(component):
                 give_warning(component, msg)
                 is_input_missing = True
     return not is_input_missing
+
+
+def local_processor_count():
+    """Get an integer for the number of processors on this machine.
+    If, for whatever reason, the number of processors could not be sensed,
+    None will be returned.
+    """
+    return multiprocessing.cpu_count()
+
+
+def recommended_processor_count():
+    """Get an integer for the recommended number of processors for parallel calculation.
+    This should be one less than the number of processors available on this machine
+    unless the machine has only one processor, in which case 1 will be returned.
+    If, for whatever reason, the number of processors could not be sensed, a value
+    of 1 will be returned.
+    """
+    cpu_count = local_processor_count()
+    return 1 if cpu_count is None or cpu_count <= 1 else cpu_count - 1
+
+
+def run_function_in_parallel(parallel_function, object_count, cpu_count=None):
+    """Run any function in parallel given a number of objects to be iterated over.
+    This method can run the calculation in a manner that targets a given CPU
+    count and will also run the function normally (without the use of Tasks)
+    if only one CPU is specified.
+    Args:
+        parallel_function: A function which will be iterated over in a parallelized
+            manner. This function should have a single input argument, which
+            is the integer of the object to be simulated. Note that, in order
+            for this function to be successfully parallelized, any lists of
+            output data must be set up beforehand and this parallel_function
+            should simply be replacing the data in this pre-created list.
+        object_count: An integer for the number of objects which will be iterated over
+            in a parallelized manner.
+        cpu_count: An integer for the number of CPUs to be used in the intersection
+            calculation. The ladybug_rhino.grasshopper.recommended_processor_count
+            function can be used to get a recommendation. If set to None, all
+            available processors will be used. (Default: None).
+    """
+    # if not cpu_count or cpu_count <= 1:
+    if True:
+        for i in range(object_count):
+            parallel_function(i)
+        return
+
+    pool = multiprocessing.Pool()
+    pool.map(parallel_function, range(object_count))
+    pool.close()
+    pool.join()
 
 
 def component_guid(component):
