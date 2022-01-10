@@ -45,15 +45,14 @@ def join_geometry_to_mesh(geometry):
     return joined_mesh
 
 
-def intersect_mesh_rays(mesh, points, vectors, normals=None, parallel=False):
+def intersect_mesh_rays(
+        mesh, points, vectors, normals=None, cpu_count=None, parallel=True):
     """Intersect a group of rays (represented by points and vectors) with a mesh.
-
     All combinations of rays that are possible between the input points and
     vectors will be intersected. This method exists since most CAD plugins have
     much more efficient mesh/ray intersection functions than ladybug_geometry.
     However, the ladybug_geometry Face3D.intersect_line_ray() method provides
     a workable (albeit very inefficient) alternative to this if it is needed.
-
     Args:
         mesh: A Rhino mesh that can block the rays.
         points: An array of Rhino points that will be used to generate rays.
@@ -62,17 +61,18 @@ def intersect_mesh_rays(mesh, points, vectors, normals=None, parallel=False):
             points and denote the direction each point is facing. These will
             be used to eliminate any cases where the vector and the normal differ
             by more than 90 degrees. If None, points are assumed to have no direction.
-        parallel: Boolean to indicate if the intersection should be run in
-            parallel with one point per CPU. (Default: False).
-
+        cpu_count: An integer for the number of CPUs to be used in the intersection
+            calculation. The ladybug_rhino.grasshopper.recommended_processor_count
+            function can be used to get a recommendation. If set to None, all
+            available processors will be used. (Default: None).
+        parallel: Optional boolean to override the cpu_count and use a single CPU
+            instead of multiple processors.
     Returns:
         A tuple with two elements
-
         -   intersection_matrix -- A 2D matrix of 0's and 1's indicating the results
             of the intersection. Each sub-list of the matrix represents one of the
             points and has a length equal to the vectors. 0 indicates a blocked
             ray and 1 indicates a ray that was not blocked.
-
         -   angle_matrix -- A 2D matrix of angles in radians. Each sub-list of the
             matrix represents one of the normals and has a length equal to the
             supplied vectors. Will be None if no normals are provided.
@@ -80,15 +80,19 @@ def intersect_mesh_rays(mesh, points, vectors, normals=None, parallel=False):
     intersection_matrix = [0] * len(points)  # matrix to be filled with results
     angle_matrix = [0] * len(normals) if normals is not None else None
     cutoff_angle = math.pi / 2  # constant used in all normal checks
+    if not parallel:
+        cpu_count = 1
 
     def intersect_point(i):
         """Intersect all of the vectors of a given point without any normal check."""
         pt = points[i]
         int_list = []
         for vec in vectors:
-            is_clear = 0 if mesh.ray_cast(
-                Vector((pt.x, pt.y, pt.z)),
-                Vector((vec.x, vec.y, vec.z)))[0] else 1
+            ray = rg.Ray3d(pt, vec)
+            if rg.Intersect.Intersection.MeshRay(mesh, ray) >= 0:
+                is_clear = 0
+            else:
+                is_clear = 1
             int_list.append(is_clear)
         intersection_matrix[i] = int_list
 
@@ -98,30 +102,58 @@ def intersect_mesh_rays(mesh, points, vectors, normals=None, parallel=False):
         int_list = []
         angle_list = []
         for vec in vectors:
-            vec_angle = Vector((normal_vec.x, normal_vec.y, normal_vec.z)).angle(Vector((vec.x, vec.y, vec.z)))
+            vec_angle = rg.Vector3d.VectorAngle(normal_vec, vec)
             angle_list.append(vec_angle)
             if vec_angle <= cutoff_angle:
-                is_clear = 0 if mesh.ray_cast(
-                    Vector((pt.x, pt.y, pt.z)),
-                    Vector((vec.x, vec.y, vec.z)))[0] else 1
+                ray = rg.Ray3d(pt, vec)
+                if rg.Intersect.Intersection.MeshRay(mesh, ray) >= 0:
+                    is_clear = 0
+                else:
+                    is_clear = 1
                 int_list.append(is_clear)
             else:  # the vector is pointing behind the surface
                 int_list.append(0)
-        intersection_matrix[i] = int_list
-        angle_matrix[i] = angle_list
+        intersection_matrix[i] = specializedarray.array('B', int_list)
+        angle_matrix[i] = specializedarray.array('d', angle_list)
+
+    def intersect_each_point_group(worker_i):
+        """Intersect groups of points so that only the cpu_count is used."""
+        start_i, stop_i = pt_groups[worker_i]
+        for count in range(start_i, stop_i):
+            intersect_point(count)
+
+    def intersect_each_point_group_normal_check(worker_i):
+        """Intersect groups of points with distance check so only cpu_count is used."""
+        start_i, stop_i = pt_groups[worker_i]
+        for count in range(start_i, stop_i):
+            intersect_point_normal_check(count)
+
+    if cpu_count is not None and cpu_count > 1:
+        # group the points in order to meet the cpu_count
+        pt_count = len(points)
+        worker_count = min((cpu_count, pt_count))
+        i_per_group = int(math.ceil(pt_count / worker_count))
+        pt_groups = [[x, x + i_per_group] for x in range(0, pt_count, i_per_group)]
+        pt_groups[-1][-1] = pt_count  # ensure the last group ends with point count
 
     if normals is not None:
-        if parallel:
+        if cpu_count is None:  # use all availabe CPUs
             tasks.Parallel.ForEach(range(len(points)), intersect_point_normal_check)
-        else:
+        elif cpu_count <= 1:  # run everything on a single processor
             for i in range(len(points)):
                 intersect_point_normal_check(i)
+        else:  # run the groups in a manner that meets the CPU count
+            tasks.Parallel.ForEach(
+                range(len(pt_groups)), intersect_each_point_group_normal_check)
     else:
-        if parallel:
+        if cpu_count is None:  # use all availabe CPUs
             tasks.Parallel.ForEach(range(len(points)), intersect_point)
-        else:
+        elif cpu_count <= 1:  # run everything on a single processor
             for i in range(len(points)):
                 intersect_point(i)
+        else:  # run the groups in a manner that meets the CPU count
+            tasks.Parallel.ForEach(range(len(pt_groups)), intersect_each_point_group)
+
     return intersection_matrix, angle_matrix
 
 
