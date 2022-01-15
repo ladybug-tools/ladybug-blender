@@ -113,11 +113,9 @@ def intersect_mesh_rays(
         pt = points[i]
         int_list = []
         for vec in vectors:
-            ray = rg.Ray3d(pt, vec)
-            if rg.Intersect.Intersection.MeshRay(mesh, ray) >= 0:
-                is_clear = 0
-            else:
-                is_clear = 1
+            is_clear = 0 if mesh.ray_cast(
+                Vector((pt.x, pt.y, pt.z)),
+                Vector((vec.x, vec.y, vec.z)))[0] else 1
             int_list.append(is_clear)
         intersection_matrix[i] = int_list
 
@@ -127,14 +125,12 @@ def intersect_mesh_rays(
         int_list = []
         angle_list = []
         for vec in vectors:
-            vec_angle = rg.Vector3d.VectorAngle(normal_vec, vec)
+            vec_angle = Vector((normal_vec.x, normal_vec.y, normal_vec.z)).angle(Vector((vec.x, vec.y, vec.z)))
             angle_list.append(vec_angle)
             if vec_angle <= cutoff_angle:
-                ray = rg.Ray3d(pt, vec)
-                if rg.Intersect.Intersection.MeshRay(mesh, ray) >= 0:
-                    is_clear = 0
-                else:
-                    is_clear = 1
+                is_clear = 0 if mesh.ray_cast(
+                    Vector((pt.x, pt.y, pt.z)),
+                    Vector((vec.x, vec.y, vec.z)))[0] else 1
                 int_list.append(is_clear)
             else:  # the vector is pointing behind the surface
                 int_list.append(0)
