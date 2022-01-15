@@ -4,11 +4,30 @@ These represent geometry computation methods  that are either not supported by
 ladybug_geometry or there are much more efficient versions of them in Rhino.
 """
 import bpy
-import mathutils.geometry
 import math
+import types
+import mathutils.geometry
 import array as specializedarray
 from .config import tolerance
 from mathutils import Vector, Matrix
+
+
+# Stub for .net tasks.
+
+def for_each(iterable, fn):
+    for i in iterable:
+        fn(i)
+    return # Does this work in Sverchok?
+
+    pool = multiprocessing.Pool()
+    pool.map(fn, iterable)
+    pool.close()
+    pool.join()
+
+tasks = types.SimpleNamespace()
+Parallel = types.SimpleNamespace()
+Parallel.ForEach = for_each
+tasks.Parallel = Parallel
 
 
 def join_geometry_to_mesh(geometry):
