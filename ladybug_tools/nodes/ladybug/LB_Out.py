@@ -19,28 +19,13 @@ from ladybug_geometry.geometry3d.polyline import Polyline3D
 from math import pi, sin, cos
 from mathutils import Vector, Matrix
 
-class SvLBOutOp(bpy.types.Operator):
-    bl_idname = "node.sv_lb_out"
-    bl_label = "LB Out"
-    bl_options = {'UNDO'}
-
-    tree_name: StringProperty(default='')
-    node_name: StringProperty(default='')
-    has_baked: bpy.props.BoolProperty(name='Has Baked', default=False)
-
-    def execute(self, context):
-        node = bpy.data.node_groups[self.tree_name].nodes[self.node_name]
-        node.refresh()
-        return {'FINISHED'}
-
-
 class SvLBOut(bpy.types.Node, SverchCustomTreeNode):
     bl_idname = 'SvLBOut'
     bl_label = 'LB Out'
     sv_icon = 'LB_OUT'
     base_name = 'geometry '
     multi_socket_type = 'SvStringsSocket'
-    has_baked: bpy.props.BoolProperty(name='Has Baked', default=False)
+    should_bake: BoolProperty(default=False, update=updateNode, name="BAKE ?")
 
     def sv_init(self, context):
         self.inputs.new('SvStringsSocket', 'geometry')
@@ -53,16 +38,10 @@ class SvLBOut(bpy.types.Node, SverchCustomTreeNode):
             multi_socket(self, min=1)
 
     def draw_buttons(self, context, layout):
-        self.wrapper_tracked_ui_draw_op(layout, 'node.sv_lb_out', icon='FILE_REFRESH', text='Refresh')
-
-    def refresh(self):
-        self.has_baked = False
-        self.process()
+        r0 = layout.row()
+        r0.prop(self, "should_bake")
 
     def process(self):
-        if self.has_baked:
-            return
-
         self.v = []
         self.e = []
         self.f = []
@@ -77,13 +56,13 @@ class SvLBOut(bpy.types.Node, SverchCustomTreeNode):
             for geometries in socket.sv_get():
                 for geometry in geometries:
                     self._process_geometry(geometry)
-
-        self.create_blender_colored_v()
-        self.create_wireframe([Vector(xyz) for xyz in self.blender_v], [])
+        
+        if self.should_bake:
+            self.create_blender_colored_v()
+            self.create_wireframe([Vector(xyz) for xyz in self.blender_v], [])
         self.outputs['verts'].sv_set(self.v)
         self.outputs['edges'].sv_set(self.e)
         self.outputs['faces'].sv_set(self.f)
-        self.has_baked = True
 
     def _process_geometry(self, geometry):
         if isinstance(geometry, (tuple, list)):
@@ -91,7 +70,8 @@ class SvLBOut(bpy.types.Node, SverchCustomTreeNode):
                 self._process_geometry(g)
             return
         self._process_sverchok_geometry(geometry)
-        self._process_blender_geometry(geometry)
+        if self.should_bake:
+            self._process_blender_geometry(geometry)
 
     def _process_sverchok_geometry(self, geometry):
         if isinstance(geometry, Arc2D):
@@ -334,9 +314,7 @@ class SvLBOut(bpy.types.Node, SverchCustomTreeNode):
 
 
 def register():
-    bpy.utils.register_class(SvLBOutOp)
     bpy.utils.register_class(SvLBOut)
 
 def unregister():
-    bpy.utils.unregister_class(SvLBOutOp)
     bpy.utils.unregister_class(SvLBOut)
